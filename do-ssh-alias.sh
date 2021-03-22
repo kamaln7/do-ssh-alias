@@ -76,7 +76,7 @@ for droplet in $(echo "$droplets" | jq -r '.[] | @base64'); do
 
     # extract fields
     hostnames=$(_jq '.name')
-    ip=$(_jq '.networks.v4[0].ip_address')
+    ip=$(_jq '.networks.v4[] | select(.type == "public") | .ip_address')
 
     echo -n Processing "$hostnames" >&2
     # check if ignored
@@ -86,7 +86,7 @@ for droplet in $(echo "$droplets" | jq -r '.[] | @base64'); do
     fi
 
     # strip suffix
-    if [[ "$hostnames" == *$stripSuffix ]]; then
+    if [[ $stripSuffix != "" &&  $hostnames == *$stripSuffix ]]; then
         hostnames="${hostnames} ${hostnames%$stripSuffix}"
         echo -n " - stripped suffix" >&2
     fi
